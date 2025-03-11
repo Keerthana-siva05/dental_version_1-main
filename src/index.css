@@ -1,0 +1,25 @@
+@import "tailwindcss/base";
+@import "tailwindcss/components";
+@import "tailwindcss/utilities";
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+:last-child
+.animate-fade-in-up {
+  animation: fadeInUp 0.5s ease-out;
+}
+
+.animation-delay-300 {
+  animation-delay: 300ms;
+}
+
+/* Add any additional custom styles here */
+

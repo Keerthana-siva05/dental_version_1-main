@@ -1,0 +1,15 @@
+header {
+  background: linear-gradient(135deg, #4b4b91, #2c3e50); /* Gradient background */
+  color: white;
+}
+footer{
+  background: linear-gradient(135deg, #4b4b91, #2c3e50); /* Gradient background */
+  color: white;
+}
+.sidebar_1{
+  background: linear-gradient(135deg, #4b4b91, #2c3e50); /* Gradient background */
+  color: white;
+}
+.logout-button:hover {
+  background-color: #c9302c;
+}

@@ -1,0 +1,163 @@
+/* Attendance Container */
+.attendance-container {
+  width: 95%;
+  max-width: 1200px;
+  margin: 40px auto;
+  background: #ffffff;
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  margin-top: 150px;
+}
+
+h2 {
+  font-size: 26px;
+  font-weight: 600;
+  color: #1d3557;
+  margin-bottom: 20px;
+  letter-spacing: 0.5px;
+}
+
+button {
+  padding: 12px 18px;
+  margin: 10px;
+  border: none;
+  cursor: pointer;
+  font-size: 15px;
+  border-radius: 8px;
+  transition: 0.3s ease;
+  font-weight: 500;
+}
+
+
+/* Table Styling */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+}
+
+th, td {
+  padding: 14px;
+  border: 1px solid #dee2e6;
+  text-align: center;
+}
+
+th {
+  background: #1d3557;
+  color: white;
+  font-weight: 600;
+}
+
+td {
+  background: #ffffff;
+}
+
+td:nth-child(odd) {
+  background: #f1f3f5;
+}
+
+td input {
+  width: 100%;
+  max-width: 90px; /* Ensures input fits within the cell */
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  text-align: center;
+}
+
+/* Increase width for Name and Register Number fields */
+td input[type="text"] {
+  width: 150px;
+  text-align: left;
+}
+
+td input[type="number"] {
+  width: 70px; /* Adjusted for better fit */
+  text-align: center;
+}
+
+/* Highlight Attendance Percentage */
+.highlight {
+  font-weight: bold;
+  color: #e63946;
+  border-radius: 6px;
+}
+
+/* Hover Effect */
+tr:hover {
+  background: #e9f5ff;
+  transition: 0.3s ease;
+}
+
+
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  td input {
+      width: 90%;
+  }
+}
+
+/* Month and Year Selection Container */
+.selection {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap; /* Fix for small screens */
+  gap: 15px;
+  margin-bottom: 20px;
+  background: #f8f9fa;
+  padding: 15px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Labels */
+.selection label {
+  font-size: 16px;
+  font-weight: 500;
+  color: #1d3557;
+}
+
+/* Dropdown Styles */
+.selection select {
+  padding: 10px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background: #ffffff;
+  color: #1d3557;
+  cursor: pointer;
+  transition: 0.3s ease-in-out;
+}
+
+.selection select:focus {
+  border-color: #457b9d;
+  outline: none;
+  box-shadow: 0 0 6px rgba(69, 123, 157, 0.5);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .selection {
+    flex-direction: column;
+    gap: 10px;
+    padding: 12px;
+  }
+
+  .selection label {
+    font-size: 14px;
+  }
+
+  .selection select {
+    width: 100%;
+    font-size: 14px;
+  }
+}

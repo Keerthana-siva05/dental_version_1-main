@@ -1,0 +1,108 @@
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  
+}
+
+.main-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10px;
+  width: 70%;
+}
+
+
+
+.image-container {
+  flex: 1; /* Take up a proportion of the available space */
+  margin-right: 20px;
+  /* margin-top: 0px; */
+   /* Add spacing between image and notification table */
+  position: relative;
+  width: 100%;
+  max-width: 400px; /* Adjust width */
+  /* height: ; Maintain aspect ratio */
+  overflow: hidden;
+  border-top-left-radius: 20px;
+  border-top-right-radius: 20px;
+  /* border-radius: 15px; Optional: Add rounded corners */
+  /* box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); Subtle box shadow */
+  /* background-color: #fff; Optional: Add a background color */
+}
+
+
+.image-container img {
+  width: 100%;
+
+  height: 200px;
+  object-fit: cover;
+  transition: opacity 1s ease-in-out;
+}
+
+h2 {
+  font-size: 1.5em;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.scrolling-box {
+  width: 100%; /* Adjust width as needed */
+  max-width: 500px; /* Set maximum width */
+  height: 150px; /* Set height of the scrolling box */
+  overflow: hidden; /* Hide overflow content */
+  border: 1px solid #ddd; /* Add a border for styling */
+  border-radius: 8px; /* Rounded corners */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+  background-color: #f9f9f9; /* Background color */
+  padding: 10px;
+  position: relative;
+}
+
+.scrolling-box ul {
+list-style-type: disc; /* Remove default bullet points */
+  /* padding: 0; */
+  margin: 0;
+padding-left: 20px; /* Add padding for indentation */
+font-size: 1.1em; /* Adjust font size */
+line-height: 1.6; /* Add space between lines */
+color: #555;
+  animation: scrollText 10s linear infinite; /* Apply scrolling animation */
+}
+
+
+.scrolling-box li {
+  font-size: 1em;
+  line-height: 1.6;
+  color: #333;
+  margin-bottom: 10px; /* Add spacing between items */
+}
+
+@keyframes scrollText {
+  0% {
+      transform: translateY(0);
+  }
+  100% {
+      transform: translateY(-100%); /* Moves the content up */
+  }
+}
+
+
+
+
+
+
+
+.department-description ul {
+  list-style-type: disc; /* Use disc bullets */
+  margin: 0;
+  padding-left: 20px; /* Add padding for indentation */
+  font-size: 1.1em; /* Adjust font size */
+  line-height: 1.6; /* Add space between lines */
+  color: #555; /* Set text color */
+}
+
+.department-description ul li {
+  margin-bottom: 10px; /* Add space between bullet points */
+}
