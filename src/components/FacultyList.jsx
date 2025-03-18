@@ -27,7 +27,7 @@ const FacultyList = () => {
             faculty.map((member, index) => (
               <>
                 {index === 0 || faculty[index - 1].designation !== member.designation ? (
-                  <tr key={`header-${member._id}`} className="bg-blue-800">
+                  <tr key={`header-${member._id}`} className="bg-gray-200">
                     <td colSpan="3" className="py-3 px-4 text-center font-bold text-black uppercase tracking-wide">
                       {member.designation}
                     </td>
@@ -45,7 +45,8 @@ const FacultyList = () => {
                   </td>
                   <td className="py-3 px-4 text-lg font-semibold text-gray-800">{member.name}</td>
                   <td className="py-3 px-4 text-gray-600">
-                    {member.contactNumber.startsWith("+") ? member.contactNumber : `+91 ${member.contactNumber}`}
+                  {member.contactNumber?.startsWith("+") ? member.contactNumber : `+91 ${member.contactNumber || ""}`}
+
                   </td>
                 </tr>
               </>
