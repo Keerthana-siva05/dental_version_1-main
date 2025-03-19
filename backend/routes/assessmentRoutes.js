@@ -37,16 +37,21 @@ router.get("/", async (req, res) => {
                 name: student.name,
                 year: getCurrentYear(student.batch),
                 assessmentType: assessment ? assessment.assessmentType : "",
-                ...(!assessment ? resetMarks : { // If no assessment found, reset marks
-                    theory70: assessment.theory70 || "",
-                    theory20: assessment.theory20 || "",
-                    theory10: assessment.theory10 || "",
-                    totalTheory: assessment.totalTheory || "",
-                    practical90: assessment.practical90 || "",
-                    practical10: assessment.practical10 || "",
-                    totalPractical: assessment.totalPractical || ""
-                })
+                theory70: assessment?.theory70 || 0,
+                theory20: assessment?.theory20 || 0,
+                theory10: assessment?.theory10 || 0,
+                totalTheory: 
+                    (assessment?.theory70 || 0) + 
+                    (assessment?.theory20 || 0) + 
+                    (assessment?.theory10 || 0),  // Ensure this is computed
+                practical90: assessment?.practical90 || 0,
+                practical10: assessment?.practical10 || 0,
+                totalPractical: 
+                    (assessment?.practical90 || 0) + 
+                    (assessment?.practical10 || 0)  // Ensure this is computed
             };
+            
+            
         }));
 
         res.json(studentData);

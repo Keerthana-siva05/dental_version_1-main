@@ -16,49 +16,60 @@ const InternalAssessment = () => {
     };
 
     useEffect(() => {
-        if (selectedCourse && selectedBatch) {
-            axios.get(`http://localhost:5000/api/assessment?course=${selectedCourse}&batch=${selectedBatch}`)
-                .then(response => setStudents(response.data))
+        if (selectedCourse && selectedBatch && assessmentType) {
+            axios.get(`http://localhost:5000/api/assessment?course=${selectedCourse}&batch=${selectedBatch}&assessmentType=${assessmentType}`)
+                .then(response => {
+                    console.log("Fetched Students:", response.data); // Check if totalTheory and totalPractical exist
+                    setStudents(response.data);
+                })
                 .catch(error => console.error("Error fetching students:", error));
-        } else {
-            setStudents([]);
         }
-    }, [selectedCourse, selectedBatch]);
-
+    }, [selectedCourse, selectedBatch, assessmentType]);
+    
+    
     const handleInputChange = (index, field, value) => {
         const updatedStudents = [...students];
         updatedStudents[index][field] = value ? parseInt(value) : 0;
-
-        // Auto-calculate totals
-        updatedStudents[index].theoryTotal = 
+    
+        // Recalculate totals
+        updatedStudents[index].totalTheory = 
             (updatedStudents[index].theory70 || 0) + 
             (updatedStudents[index].theory20 || 0) + 
             (updatedStudents[index].theory10 || 0);
-
-        updatedStudents[index].practicalTotal = 
+    
+        updatedStudents[index].totalPractical = 
             (updatedStudents[index].practical90 || 0) + 
             (updatedStudents[index].practical10 || 0);
-
+    
         setStudents(updatedStudents);
     };
+    
 
     const handleAssessmentChange = (event) => {
         setAssessmentType(event.target.value);
     
-        // Reset only the marks fields, keep student details
-        const updatedStudents = students.map(student => ({
-            ...student,
-            theory70: "",
-            theory20: "",
-            theory10: "",
-            practical90: "",
-            practical10: "",
-            theoryTotal: "",
-            practicalTotal: ""
-        }));
-    
-        setStudents(updatedStudents);
+        // Fetch new data when assessment type changes
+        axios.get(`http://localhost:5000/api/assessment?course=${selectedCourse}&batch=${selectedBatch}&assessmentType=${event.target.value}`)
+            .then(response => {
+                if (response.data.length > 0) {
+                    setStudents(response.data);
+                } else {
+                    // If no assessment data is found, reset only the marks
+                    setStudents(students.map(student => ({
+                        ...student,
+                        theory70: "",
+                        theory20: "",
+                        theory10: "",
+                        practical90: "",
+                        practical10: "",
+                        totalTheory: "",
+                        totalPractical: ""
+                    })));
+                }
+            })
+            .catch(error => console.error("Error fetching assessments:", error));
     };
+    
 
     const downloadCSV = () => {
         const csvContent = [
@@ -71,10 +82,10 @@ const InternalAssessment = () => {
                 student.theory70 || "",
                 student.theory20 || "",
                 student.theory10 || "",
-                student.theoryTotal || "",
+                student.totalTheory || "",
                 student.practical90 || "",
                 student.practical10 || "",
-                student.practicalTotal || ""
+                student.totalPractical || ""
             ].join(","))
         ].join("\n");
     
@@ -134,7 +145,7 @@ const InternalAssessment = () => {
 
             {students.length > 0 && (
                 <table className="w-full border-collapse border border-gray-300 text-center">
-                    <thead className="bg-purple-600 text-white">
+                    <thead className="bg-purple-900 text-white">
                         <tr>
                             <th className="p-2">Reg. No</th>
                             <th className="p-2">Name</th>
@@ -169,7 +180,7 @@ const InternalAssessment = () => {
                                         onChange={(e) => handleInputChange(index, "theory10", e.target.value)} 
                                         className="w-16 p-1 border rounded text-center" />
                                 </td>
-                                <td className="p-2 font-bold bg-green-200">{student.theoryTotal || ""}</td>
+                                <td className="p-2 font-bold bg-green-200">{student.totalTheory}</td>
                                 <td className="p-2">
                                     <input type="number" value={student.practical90 || ""} 
                                         onChange={(e) => handleInputChange(index, "practical90", e.target.value)} 
@@ -180,16 +191,21 @@ const InternalAssessment = () => {
                                         onChange={(e) => handleInputChange(index, "practical10", e.target.value)} 
                                         className="w-16 p-1 border rounded text-center" />
                                 </td>
-                                <td className="p-2 font-bold bg-blue-200">{student.practicalTotal || ""}</td>
+                                <td className="p-2 font-bold bg-blue-200">{student.totalPractical}</td>
                             </tr>
                         ))}
                     </tbody>
                 </table>
             )}
 
-            <button onClick={saveAssessment} className="bg-blue-500 text-white px-4 py-2 rounded mt-4">Save Assessment</button>
-            <button onClick={downloadCSV} className="bg-green-500 text-white px-4 py-2 rounded mt-4">Download CSV</button>
-
+<div className="flex justify-center space-x-4 mt-4">
+    <button onClick={saveAssessment} className="bg-blue-500 text-white px-4 py-2 rounded">
+        Save Assessment
+    </button>
+    <button onClick={downloadCSV} className="bg-green-500 text-white px-4 py-2 rounded">
+        Download CSV
+    </button>
+</div>
         </div>
     );
 };
