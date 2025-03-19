@@ -12,6 +12,7 @@ import Facultyactivity from "./components/Facultyactivity";
 import FacultyList from "./components/FacultyList";
 import AddFaculty from "./components/AddFaculty";
 import AttendanceForm from "./components/AttendanceForm";
+import InternalAssessment from "./components/internalAssessment";
 import About from "./components/About";
 import Services from "./components/Services";
 import Contact from "./components/Contact";
@@ -49,7 +50,7 @@ const App = () => {
   const handleLogin = () => setIsAuthenticated(true);
 
   const sidebarPages = ["/", "/facultyactivity", "/facultylist"];
-  const facultySidebarPages = ["/dashboard", "/profile", "/attendance", "/faculty"];
+  const facultySidebarPages = ["/dashboard", "/profile", "/attendance", "/faculty","/internal"];
 
   return (
     <div className="relative min-h-screen bg-gray-100">
@@ -75,6 +76,7 @@ const App = () => {
           <Route path="/dashboard" element={isAuthenticated ? <Dashboard /> : <Navigate to="/login" />} />
           <Route path="/profile" element={isAuthenticated ? <Profile /> : <Navigate to="/login" />} />
           <Route path="/attendance" element={isAuthenticated ? <AttendanceForm /> : <Navigate to="/login" />} />
+          <Route path="/internal" element={isAuthenticated ? <InternalAssessment /> : <Navigate to="/login" />} />
           <Route path="/faculty" element={isAuthenticated ? <AddFaculty /> : <Navigate to="/login" />} />
           <Route path="/facultyactivity" element={<Facultyactivity />} />
           <Route path="/facultylist" element={<FacultyList />} />

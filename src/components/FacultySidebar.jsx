@@ -39,7 +39,7 @@ const FacultySidebar = () => {
               { name: "Dashboard", path: "/dashboard", icon: "📋" },
               { name: "Profile", path: "/profile", icon: "👤" },
               { name: "Attendance", path: "/attendance", icon: "📅" },
-              { name: "Internal Assessment", path: "/internal-assessment", icon: "📊" },
+              { name: "Internal Assessment", path: "/internal", icon: "📊" },
               { name: "Patient Cases", path: "/patient-cases", icon: "🏥" },
               { name: "Faculty Activities", path: "/faculty", icon: "🎓" },
             ].map((item) => (
