@@ -8,32 +8,87 @@ const AttendanceForm = () => {
   const [month, setMonth] = useState(new Date().getMonth() + 1);
   const [year, setYear] = useState(new Date().getFullYear());
   const [course, setCourse] = useState("");
-  const [selectedYear, setSelectedYear] = useState("");
+  const [selectedBatch, setSelectedBatch] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  
 
-  useEffect(() => {
-    if (course && selectedYear) {
-      axios.get(
-        `http://localhost:5000/api/attendance/students?course=${course}&year=${selectedYear}`
-      )
-      
-        .then((res) => {
-          setStudents(res.data);
-          setAttendanceData(
-            res.data.map((student) => ({
-              ...student,
-              theoryTotal: "",
-              theoryAttended: "",
-              practicalTotal: "",
-              practicalAttended: "",
-              clinicalTotal: "",
-              clinicalAttended: "",
-            }))
-          );
-        })
-        .catch((err) => console.error("Error fetching students:", err));
-    }
-  }, [course, selectedYear]);
+  const getCurrentYear = (batch) => {
+    const currentYear = new Date().getFullYear();
+    const batchStartYear = parseInt(batch.split("-")[0]);
+    const year = currentYear - batchStartYear + 1;
+    return year > 5 ? "Graduated" : `${year}`;
+};
 
+useEffect(() => {
+  if (!course || !selectedBatch || !month || !year) return;
+
+  setLoading(true);
+  setError(null);
+
+  // Fetch attendance data
+  axios
+    .get("http://localhost:5000/api/attendance", {
+      params: { course, batch: selectedBatch, month, year },
+    })
+    .then((res) => {
+      if (res.data && res.data.students.length > 0) {
+        setAttendanceData(
+          res.data.students.map((student) => ({
+            regNumber: student.regNumber,
+            name: student.name,
+            theoryTotal: student.theory?.total || "",
+            theoryAttended: student.theory?.attended || "",
+            practicalTotal: student.practical?.total || "",
+            practicalAttended: student.practical?.attended || "",
+            clinicalTotal: student.clinical?.total || "",
+            clinicalAttended: student.clinical?.attended || "",
+          }))
+        );
+      } else {
+        fetchStudentDetails();
+      }
+    })
+    .catch((err) => {
+      if (err.response?.status === 404) {
+        fetchStudentDetails();
+      } else {
+        setError("Error fetching attendance data.");
+        console.error("Error fetching attendance record:", err);
+      }
+    })
+    .finally(() => setLoading(false));
+}, [course, selectedBatch, month, year]);
+
+const fetchStudentDetails = () => {
+  axios
+    .get("http://localhost:5000/api/students", {
+      params: { course, batch: selectedBatch },
+    })
+    .then((studentRes) => {
+      if (studentRes.data && studentRes.data.students.length > 0) {
+        setStudents(studentRes.data.students);
+        setAttendanceData(
+          studentRes.data.students.map((student) => ({
+            regNumber: student.regNumber,
+            name: student.name,
+            theoryTotal: "",
+            theoryAttended: "",
+            practicalTotal: "",
+            practicalAttended: "",
+            clinicalTotal: "",
+            clinicalAttended: "",
+          }))
+        );
+      } else {
+        setAttendanceData([]);
+      }
+    })
+    .catch((err) => {
+      setError("Error fetching student details.");
+      console.error("Error fetching student details:", err);
+    });
+};  
 
   const handleTableChange = (id, field, value) => {
     setAttendanceData((prevData) =>
@@ -71,28 +126,33 @@ const AttendanceForm = () => {
 };
 
 
-  const saveToDatabase = async () => {
-    try {
+const saveToDatabase = async () => {
+  console.log("Saving Data:", { course, batch: selectedBatch, month, students: attendanceData });
+
+  try {
       await axios.post("http://localhost:5000/api/attendance/save", {
-        course,
-        year,
-        month,
-        students: attendanceData.map((student) => ({
-          regNumber: student.regNumber,
-          name: student.name,
-          theoryTotal: Number(student.theoryTotal) || 0,
-          theoryAttended: Number(student.theoryAttended) || 0,
-          practicalTotal: Number(student.practicalTotal) || 0,
-          practicalAttended: Number(student.practicalAttended) || 0,
-          clinicalTotal: Number(student.clinicalTotal) || 0,
-          clinicalAttended: Number(student.clinicalAttended) || 0,
-        })),
+          course,
+          batch: selectedBatch,
+          month,
+          year,
+          students: attendanceData.map((student) => ({
+              regNumber: student.regNumber,
+              name: student.name,
+              theoryTotal: Number(student.theoryTotal) || 0,
+              theoryAttended: Number(student.theoryAttended) || 0,
+              practicalTotal: Number(student.practicalTotal) || 0,
+              practicalAttended: Number(student.practicalAttended) || 0,
+              clinicalTotal: Number(student.clinicalTotal) || 0,
+              clinicalAttended: Number(student.clinicalAttended) || 0,
+          })),
       });
+
       alert("Attendance saved successfully!");
-    } catch (error) {
+  } catch (error) {
+      console.error("Error saving attendance:", error);
       alert("Error saving attendance. Check console for details.");
-    }
-  };
+  }
+};
 
   const downloadExcel = () => {
     const worksheet = XLSX.utils.json_to_sheet(
@@ -113,7 +173,7 @@ const AttendanceForm = () => {
   
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "Attendance");
-    XLSX.writeFile(workbook, `Attendance_${course}_${selectedYear}_${month}.xlsx`);
+    XLSX.writeFile(workbook, `Attendance_${course}_${selectedBatch}_${month}.xlsx`);
 };
 
 
@@ -132,18 +192,14 @@ const AttendanceForm = () => {
             <option value="MDS">MDS</option>
           </select>
         </div>
-
         <div className="flex-1">
-          <label className="block font-semibold mb-1">Year:</label>
-          <select className="w-full p-2 border rounded" onChange={(e) => setSelectedYear(e.target.value)}>
-            <option value="">Select Year</option>
-            <option value="1st Year">1st Year</option>
-            <option value="2nd Year">2nd Year</option>
-            <option value="3rd Year">3rd Year</option>
-            <option value="4th Year">4th Year</option>
-          </select>
+        <label className="block font-semibold mb-1">Batch:</label>
+        <select value={selectedBatch} onChange={(e) => setSelectedBatch(e.target.value)} className="w-full p-2 border rounded">
+                    <option value="">Select Batch</option>
+                    <option value="2022-2026">2022-2026</option>
+                    <option value="2021-2025">2021-2025</option>
+                </select>
         </div>
-
         <div className="flex-1">
           <label className="block font-semibold mb-1">Month:</label>
           <select className="w-full p-2 border rounded" onChange={handleMonthChange} value={month}>
@@ -163,6 +219,7 @@ const AttendanceForm = () => {
             <tr className="bg-blue-900 text-white">
               <th className="border p-2">Register Number</th>
               <th className="border p-2">Name</th>
+              <th className="p-2 font-bold">Year</th>
               <th className="border p-2">Theory (Total)</th>
               <th className="border p-2">Theory (Attended)</th>
               <th className="border p-2">Theory (%)</th>
@@ -179,7 +236,7 @@ const AttendanceForm = () => {
               <tr key={row.regNumber} className="odd:bg-gray-100 even:bg-white">
                 <td className="border p-2">{row.regNumber}</td>
                 <td className="border p-2">{row.name}</td>
-
+                <td className="border p-2">{getCurrentYear(selectedBatch)}</td>
                 {/* Theory Total */}
                 <td className="border p-2">
                   <input

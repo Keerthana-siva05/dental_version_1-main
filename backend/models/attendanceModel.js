@@ -16,12 +16,13 @@ const StudentAttendanceSchema = new mongoose.Schema({
 
 const AttendanceSchema = new mongoose.Schema({
   course: { type: String, required: true },
-  year: { type: String, required: true },
+  year: { type: String, required: true },  // Added Year Field
+  batch: { type: String, required: true },
   month: { type: String, required: true },
   students: [StudentAttendanceSchema],
 });
 
-AttendanceSchema.index({ course: 1, year: 1, month: 1 }, { unique: true });
+AttendanceSchema.index({ course: 1, year: 1, batch: 1, month: 1 }, { unique: true }); // Updated Index
 
 const Attendance = mongoose.model("Attendance", AttendanceSchema);
 export default Attendance;

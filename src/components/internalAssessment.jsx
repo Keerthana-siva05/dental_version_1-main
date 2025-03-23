@@ -12,7 +12,7 @@ const InternalAssessment = () => {
         const currentYear = new Date().getFullYear();
         const batchStartYear = parseInt(batch.split("-")[0]);
         const year = currentYear - batchStartYear + 1;
-        return year > 5 ? "Graduated" : `${year} Year`;
+        return year > 5 ? "Graduated" : `${year}`;
     };
 
     useEffect(() => {
@@ -145,48 +145,48 @@ const InternalAssessment = () => {
 
             {students.length > 0 && (
                 <table className="w-full border-collapse border border-gray-300 text-center">
-                    <thead className="bg-purple-900 text-white">
-                        <tr>
-                            <th className="p-2">Reg. No</th>
-                            <th className="p-2">Name</th>
-                            <th className="p-2">Year</th>
-                            <th className="p-2">Theory (70)</th>
-                            <th className="p-2">Theory (20)</th>
-                            <th className="p-2">Theory (10)</th>
-                            <th className="p-2 bg-green-500">Total Theory</th>
-                            <th className="p-2">Practical (90)</th>
-                            <th className="p-2">Practical (10)</th>
-                            <th className="p-2 bg-blue-500">Total Practical</th>
-                        </tr>
-                    </thead>
+                <thead>
+                    <tr className="bg-blue-900 text-white border border-gray-300">
+                        <th className="p-2 border border-gray-300">Reg. No</th>
+                        <th className="p-2 border border-gray-300">Name</th>
+                        <th className="p-2 border border-gray-300">Year</th>
+                        <th className="p-2 border border-gray-300">Theory (70)</th>
+                        <th className="p-2 border border-gray-300">Theory (20)</th>
+                        <th className="p-2 border border-gray-300">Theory (10)</th>
+                        <th className="p-2 border border-gray-300 bg-blue-500">Total Theory</th>
+                        <th className="p-2 border border-gray-300">Practical (90)</th>
+                        <th className="p-2 border border-gray-300">Practical (10)</th>
+                        <th className="p-2 border border-gray-300 bg-blue-500">Total Practical</th>
+                    </tr>
+                </thead>
                     <tbody>
                         {students.map((student, index) => (
                             <tr key={index} className="border-b">
-                                <td className="p-2">{student.regNumber}</td>
-                                <td className="p-2">{student.name}</td>
-                                <td className="p-2 font-bold">{getCurrentYear(selectedBatch)}</td>
-                                <td className="p-2">
+                                <td className="p-2 border border-gray-300">{student.regNumber}</td>
+                                <td className="p-2 border border-gray-300">{student.name}</td>
+                                <td className="p-2 border border-gray-300 font-bold">{getCurrentYear(selectedBatch)}</td>
+                                <td className="p-2 border border-gray-300">
                                     <input type="number" value={student.theory70 || ""} 
                                         onChange={(e) => handleInputChange(index, "theory70", e.target.value)} 
                                         className="w-16 p-1 border rounded text-center" />
                                 </td>
-                                <td className="p-2">
+                                <td className="p-2 border border-gray-300">
                                     <input type="number" value={student.theory20 || ""} 
                                         onChange={(e) => handleInputChange(index, "theory20", e.target.value)} 
                                         className="w-16 p-1 border rounded text-center" />
                                 </td>
-                                <td className="p-2">
+                                <td className="p-2 border border-gray-300">
                                     <input type="number" value={student.theory10 || ""} 
                                         onChange={(e) => handleInputChange(index, "theory10", e.target.value)} 
                                         className="w-16 p-1 border rounded text-center" />
                                 </td>
-                                <td className="p-2 font-bold bg-green-200">{student.totalTheory}</td>
+                                <td className="p-2 font-bold bg-blue-200">{student.totalTheory}</td>
                                 <td className="p-2">
                                     <input type="number" value={student.practical90 || ""} 
                                         onChange={(e) => handleInputChange(index, "practical90", e.target.value)} 
                                         className="w-16 p-1 border rounded text-center" />
                                 </td>
-                                <td className="p-2">
+                                <td className="p-2 border border-gray-300">
                                     <input type="number" value={student.practical10 || ""} 
                                         onChange={(e) => handleInputChange(index, "practical10", e.target.value)} 
                                         className="w-16 p-1 border rounded text-center" />
