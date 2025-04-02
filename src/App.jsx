@@ -12,6 +12,7 @@ import Facultyactivity from "./components/Facultyactivity";
 import FacultyList from "./components/FacultyList";
 import AddFaculty from "./components/AddFaculty";
 import AttendanceForm from "./components/AttendanceForm";
+import AttendanceAverage from "./components/AttendanceAverage";
 import InternalAssessment from "./components/internalAssessment";
 import About from "./components/About";
 import Services from "./components/Services";
@@ -76,6 +77,7 @@ const App = () => {
           <Route path="/dashboard" element={isAuthenticated ? <Dashboard /> : <Navigate to="/login" />} />
           <Route path="/profile" element={isAuthenticated ? <Profile /> : <Navigate to="/login" />} />
           <Route path="/attendance" element={isAuthenticated ? <AttendanceForm /> : <Navigate to="/login" />} />
+          <Route path="/average" element={isAuthenticated ? <AttendanceAverage /> : <Navigate to="/login" />} />
           <Route path="/internal" element={isAuthenticated ? <InternalAssessment /> : <Navigate to="/login" />} />
           <Route path="/faculty" element={isAuthenticated ? <AddFaculty /> : <Navigate to="/login" />} />
           <Route path="/facultyactivity" element={<Facultyactivity />} />

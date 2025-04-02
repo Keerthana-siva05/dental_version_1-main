@@ -36,12 +36,12 @@ const FacultyList = () => {
 
                 <tr key={member._id} className="hover:bg-blue-200 transition">
                   <td className="py-3 px-4">
-                    <img
-                      src={`http://localhost:5000/${member.profileImage}`}
-                      alt={member.name}
-                      className="w-24 h-28 object-cover rounded-md border-2 border-blue-800 p-1 transition-transform transform hover:scale-105 shadow-md"
-                      onError={(e) => (e.target.src = "/default-profile.jpg")}
-                    />
+                  <img
+  src={member.profileImage ? `http://localhost:5000${member.profileImage}` : "/default-profile.jpg"}
+  alt={member.name}
+  className="w-24 h-28 object-cover rounded-md border-2 border-blue-800 p-1 transition-transform transform hover:scale-105 shadow-md"
+  onError={(e) => (e.target.src = "/default-profile.jpg")}
+/>
                   </td>
                   <td className="py-3 px-4 text-lg font-semibold text-gray-800">{member.name}</td>
                   <td className="py-3 px-4 text-gray-600">

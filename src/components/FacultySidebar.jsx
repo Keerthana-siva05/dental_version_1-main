@@ -25,7 +25,7 @@ const FacultySidebar = () => {
       >
         {/* Close Button */}
         <button
-          className="absolute top-1 right-4 text-red-500 text-2xl focus:outline-none active:text-red-700"
+          className="absolute top-2 right-4 text-white focus:outline-none"
           onClick={() => setIsOpen(false)}
         >
           ✖
@@ -42,6 +42,7 @@ const FacultySidebar = () => {
               { name: "Internal Assessment", path: "/internal", icon: "📊" },
               { name: "Patient Cases", path: "/patient-cases", icon: "🏥" },
               { name: "Faculty Activities", path: "/faculty", icon: "🎓" },
+              { name: "Attendance Average", path: "/average", icon: "🎓" },
             ].map((item) => (
               <li key={item.name}>
                 <button

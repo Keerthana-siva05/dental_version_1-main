@@ -1,6 +1,5 @@
 import Faculty from "../models/Faculty.js";
 
-// ✅ Update Faculty Activities (PUT request)
 export const updateFacultyActivities = async (req, res) => {
   const { name, activities } = req.body;
 
@@ -14,7 +13,7 @@ export const updateFacultyActivities = async (req, res) => {
     if (!faculty) {
       faculty = new Faculty({ name, activities });
     } else {
-      faculty.activities = [...faculty.activities, ...activities];
+      faculty.activities = activities; // 🔄 Replace instead of append
     }
 
     await faculty.save();

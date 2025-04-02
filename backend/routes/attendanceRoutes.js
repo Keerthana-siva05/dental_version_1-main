@@ -116,4 +116,86 @@ router.post("/save", async (req, res) => {
   }
 });
 
+
+
+router.get("/average", async (req, res) => {
+  try {
+    let { course, batch, startMonth, endMonth, year } = req.query;
+
+    if (!course || !batch || !startMonth || !endMonth || !year) {
+      return res.status(400).json({ message: "Missing required parameters" });
+    }
+
+    // Convert months to numbers for MongoDB query
+    const start = parseInt(startMonth, 10);
+    const end = parseInt(endMonth, 10);
+
+    if (isNaN(start) || isNaN(end)) {
+      return res.status(400).json({ message: "Invalid month values" });
+    }
+
+    const records = await Attendance.find({
+      course,
+      batch,
+      year, // Ensure this is correctly formatted
+      month: { $gte: start, $lte: end },
+    });
+
+    if (records.length === 0) {
+      return res.status(404).json({ message: "No attendance records found for the selected range." });
+    }
+
+    let studentAttendanceMap = {};
+
+    records.forEach((record) => {
+      record.students.forEach((student) => {
+        if (!studentAttendanceMap[student.regNumber]) {
+          studentAttendanceMap[student.regNumber] = {
+            regNumber: student.regNumber,
+            name: student.name,
+            totalTheory: 0,
+            attendedTheory: 0,
+            totalPractical: 0,
+            attendedPractical: 0,
+            totalClinical: 0,
+            attendedClinical: 0,
+            monthsCount: 0,
+          };
+        }
+
+        studentAttendanceMap[student.regNumber].totalTheory += student.theory.total;
+        studentAttendanceMap[student.regNumber].attendedTheory += student.theory.attended;
+        studentAttendanceMap[student.regNumber].totalPractical += student.practical.total;
+        studentAttendanceMap[student.regNumber].attendedPractical += student.practical.attended;
+        studentAttendanceMap[student.regNumber].totalClinical += student.clinical.total;
+        studentAttendanceMap[student.regNumber].attendedClinical += student.clinical.attended;
+        studentAttendanceMap[student.regNumber].monthsCount += 1; // Track the number of months
+      });
+    });
+
+    const studentsAttendance = Object.values(studentAttendanceMap).map((student) => {
+      let totalClasses = student.totalTheory + student.totalPractical + student.totalClinical;
+      let totalAttended = student.attendedTheory + student.attendedPractical + student.attendedClinical;
+      let averageAttendance = totalClasses > 0 ? ((totalAttended / totalClasses) * 100).toFixed(2) : "0.00";
+
+      return {
+        regNumber: student.regNumber,
+        name: student.name,
+        theoryPercentage: student.totalTheory ? ((student.attendedTheory / student.totalTheory) * 100).toFixed(2) : "0.00",
+        practicalPercentage: student.totalPractical ? ((student.attendedPractical / student.totalPractical) * 100).toFixed(2) : "0.00",
+        clinicalPercentage: student.totalClinical ? ((student.attendedClinical / student.totalClinical) * 100).toFixed(2) : "0.00",
+        averageAttendance: averageAttendance, // Overall average
+      };
+    });
+
+    res.json(studentsAttendance);
+  } catch (error) {
+    console.error("Error fetching attendance averages:", error);
+    res.status(500).json({ message: "Error fetching attendance", error: error.message });
+  }
+});
+
+
+
+
 export default router;

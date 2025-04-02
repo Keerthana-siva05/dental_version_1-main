@@ -90,20 +90,30 @@ const Profile = () => {
   const handleImageUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
-
-    const imageData = new FormData();
-    imageData.append("profileImage", file);
-
+  
+    const formData = new FormData();
+    formData.append("profileImage", file);
+  
     try {
-      const response = await axios.post("http://localhost:5000/api/auth/upload-image", imageData, {
-        headers: { Authorization: `Bearer ${token}`, "Content-Type": "multipart/form-data" },
+      const res = await fetch("http://localhost:5000/api/auth/upload-image", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        body: formData,
       });
-      setFormData((prevState) => ({ ...prevState, profileImage: response.data.profileImage }));
-      alert("Profile image updated successfully!");
+  
+      const data = await res.json();
+      if (res.ok) {
+        setFormData({ ...formData, profileImage: data.profileImage });
+      } else {
+        console.error("Error:", data.message);
+      }
     } catch (error) {
-      setError("Failed to upload image.");
+      console.error("Upload failed:", error);
     }
   };
+  
 
   if (loading) return <p className="text-orange-600 text-lg font-semibold text-center">Loading...</p>;
   if (error) return <p className="text-red-600 text-center">{error}</p>;
@@ -116,11 +126,9 @@ const Profile = () => {
       {/* Profile Image Upload Section */}
       <div className="flex flex-col items-center mb-1">
         {formData.profileImage ? (
-          <img
-            src={`http://localhost:5000/${formData.profileImage}`}
-            alt="Profile"
-            className="w-24 h-24 rounded-lg object-cover border-2 border-blue-900 shadow-md"
-          />
+          <img src={`http://localhost:5000${formData.profileImage}`} alt="Profile" 
+          className="w-24 h-24 rounded-lg object-cover border-2 border-blue-900 shadow-md"
+        />
         ) : (
           <p className="text-gray-600">No profile image</p>
         )}
