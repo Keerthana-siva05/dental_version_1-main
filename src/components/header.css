@@ -6,10 +6,12 @@ footer{
   background: linear-gradient(135deg, #4b4b91, #2c3e50); /* Gradient background */
   color: white;
 }
-.sidebar_1{
-  background: linear-gradient(135deg, #4b4b91, #2c3e50); /* Gradient background */
-  color: white;
+.sidebar_1 {
+  background: linear-gradient(135deg, #4b4b91, #2c3e50) !important;
 }
-.logout-button:hover {
-  background-color: #c9302c;
+.sidebar_1 button {
+  background-color: transparent !important; 
+}
+.sidebar_1 button:hover {
+  background: rgba(37, 99, 235, 0.3) !important;
 }

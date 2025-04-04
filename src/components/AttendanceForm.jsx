@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import * as XLSX from "xlsx";
+import { Link } from "react-router-dom";
 
 const AttendanceForm = () => {
   const [students, setStudents] = useState([]);
@@ -32,7 +33,7 @@ useEffect(() => {
       params: { course, batch: selectedBatch, month, year },
     })
     .then((res) => {
-      if (res.data && res.data.students.length > 0) {
+      if (res.data && res.data.students && res.data.students.length > 0) {
         setAttendanceData(
           res.data.students.map((student) => ({
             regNumber: student.regNumber,
@@ -62,11 +63,11 @@ useEffect(() => {
 
 const fetchStudentDetails = () => {
   axios
-    .get("http://localhost:5000/api/students", {
+    .get("http://localhost:5000/api/attendance/students", {
       params: { course, batch: selectedBatch },
     })
     .then((studentRes) => {
-      if (studentRes.data && studentRes.data.students.length > 0) {
+      if (studentRes.data && studentRes.data.students && studentRes.data.students.length > 0) {
         setStudents(studentRes.data.students);
         setAttendanceData(
           studentRes.data.students.map((student) => ({
@@ -82,13 +83,14 @@ const fetchStudentDetails = () => {
         );
       } else {
         setAttendanceData([]);
+        setError("No students found for the selected course and batch.");
       }
     })
     .catch((err) => {
       setError("Error fetching student details.");
       console.error("Error fetching student details:", err);
     });
-};  
+};
 
   const handleTableChange = (id, field, value) => {
     setAttendanceData((prevData) =>
@@ -301,10 +303,29 @@ const saveToDatabase = async () => {
           </tbody>
         </table>
       </div>
-      <div className="flex justify-center mt-6 space-x-4">
-        <button onClick={saveToDatabase} className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700">Save Attendance</button>
-        <button onClick={downloadExcel} className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Download Excel</button>
-      </div>
+<div className="flex justify-center mt-6 space-x-4">
+    <button 
+        onClick={saveToDatabase} 
+        className="bg-[#1E3A8A] text-white px-6 py-2 rounded hover:bg-[#360061]"
+    >
+        Save Attendance
+    </button>
+    
+    <button 
+        onClick={downloadExcel} 
+        className="bg-[#145A32] text-white px-4 py-2 rounded hover:bg-[#1C6E1C]"
+    >
+        Download Excel
+    </button>
+    
+    <Link 
+        to="/average" 
+        className="bg-[#0F4C75] text-white px-4 py-2 rounded hover:bg-[#3156C1]"
+    >
+        Calculate Average
+    </Link>
+</div>
+
       </div>
   );
 };

@@ -7,6 +7,7 @@ import facultyRoutes from "./routes/facultyRoutes.js";
 import facultyActivitiesRoutes from "./routes/facultyActivitiesRoutes.js";
 import attendanceRoutes from "./routes/attendanceRoutes.js"; 
 import assessmentRoutes from "./routes/assessmentRoutes.js";
+import resourceRoutes from './routes/resourceRoutes.js';
 
 
 dotenv.config();
@@ -24,6 +25,7 @@ app.use("/api/faculty", facultyRoutes);
 app.use("/api/faculty-activities", facultyActivitiesRoutes);
 app.use("/api/attendance", attendanceRoutes);
 app.use("/api/assessment", assessmentRoutes);
+app.use('/api/resources', resourceRoutes);
 
 
 // Connect to MongoDB

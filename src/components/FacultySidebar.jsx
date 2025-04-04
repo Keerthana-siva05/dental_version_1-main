@@ -1,55 +1,75 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import {
+  Menu,
+  X,
+  Home,
+  LayoutDashboard,
+  User,
+  Calendar,
+  BarChart2,
+  HeartPulse,
+  GraduationCap,
+  BookOpenCheck,
+  LogOut,
+} from "lucide-react";
+import "./header.css";
 
 const FacultySidebar = () => {
   const navigate = useNavigate();
-  const [isOpen, setIsOpen] = useState(true);
+  const [isOpen, setIsOpen] = useState(false);
+
+  const toggleSidebar = () => setIsOpen(!isOpen);
+
+  const menuItems = [
+    { name: "Home", path: "/", icon: <Home size={18} /> },
+    { name: "Dashboard", path: "/dashboard", icon: <LayoutDashboard size={18} /> },
+    { name: "Profile", path: "/profile", icon: <User size={18} /> },
+    { name: "Attendance", path: "/attendance", icon: <Calendar size={18} /> },
+    { name: "Internal Assessment", path: "/internal", icon: <BarChart2 size={18} /> },
+    { name: "Patient Cases", path: "/patient-cases", icon: <HeartPulse size={18} /> },
+    { name: "Faculty Activities", path: "/faculty", icon: <GraduationCap size={18} /> },
+    { name: "Resources", path: "/resources", icon: <BookOpenCheck size={18} /> }, // NEW TAB
+  ];
 
   return (
     <>
-      {/* Sidebar Toggle Button */}
-      {!isOpen && (
-        <button
-          className="fixed top-5 left-5 bg-gray-800 text-white p-2 rounded-md z-[10000] shadow-md"
-          onClick={() => setIsOpen(true)}
-        >
-          ☰
-        </button>
-      )}
+      {/* Menu Toggle Button */}
+      <button
+        onClick={toggleSidebar}
+        className="fixed top-5 right-5 bg-gradient-to-br from-blue-600 to-indigo-700 text-white p-2 rounded-md z-[10000] shadow-lg hover:scale-105 transition-transform"
+      >
+        <Menu size={30} />
+      </button>
 
       {/* Sidebar */}
       <aside
-        className={`fixed top-0 left-0 w-[250px] h-screen bg-black text-white pt-5 z-[9999] shadow-xl transition-transform ${
+        className={`fixed top-0 left-0 w-[260px] h-screen bg-gradient-to-b from-gray-900 via-gray-800 to-gray-900 text-white pt-5 z-[9999] shadow-xl transition-transform duration-300 ease-in-out sidebar_1 ${
           isOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
         {/* Close Button */}
         <button
-          className="absolute top-2 right-4 text-white focus:outline-none"
-          onClick={() => setIsOpen(false)}
+          onClick={toggleSidebar}
+          className="absolute top-2 right-4 text-white  focus:outline-none"
         >
-          ✖
+          <X size={24} />
         </button>
 
         {/* Navigation Menu */}
         <nav className="mt-10">
           <ul className="space-y-2 px-3">
-            {[
-              { name: "Home", path: "/", icon: "🏠" },
-              { name: "Dashboard", path: "/dashboard", icon: "📋" },
-              { name: "Profile", path: "/profile", icon: "👤" },
-              { name: "Attendance", path: "/attendance", icon: "📅" },
-              { name: "Internal Assessment", path: "/internal", icon: "📊" },
-              { name: "Patient Cases", path: "/patient-cases", icon: "🏥" },
-              { name: "Faculty Activities", path: "/faculty", icon: "🎓" },
-              { name: "Attendance Average", path: "/average", icon: "🎓" },
-            ].map((item) => (
+            {menuItems.map((item) => (
               <li key={item.name}>
                 <button
-                  onClick={() => navigate(item.path)}
-                  className="block w-full text-left px-4 py-2 rounded-md font-medium bg-gray-900 text-white focus:outline-none active:bg-gray-900 flex items-center"
+                  onClick={() => {
+                    navigate(item.path);
+                    setIsOpen(false);
+                  }}
+                  className="w-full text-left px-4 py-2 rounded-lg font-medium text-white flex items-center gap-3 transition-all duration-200 hover:bg-purple-700 hover:shadow-md hover:pl-5"
                 >
-                  <span className="mr-3">{item.icon}</span> {item.name}
+                  {item.icon}
+                  {item.name}
                 </button>
               </li>
             ))}
@@ -58,13 +78,14 @@ const FacultySidebar = () => {
 
         {/* Logout Button */}
         <button
-          className="w-[240px] mt-4 py-2 bg-red-600 text-white text-sm font-medium rounded-md focus:outline-none active:bg-red-700 transition mx-auto block"
+          className="w-[220px] mt-6 py-2 bg-gradient-to-r from-red-600 to-red-500 text-white text-sm font-semibold rounded-md shadow-md  transition duration-300 mx-auto block flex items-center justify-center gap-2"
           onClick={() => {
             localStorage.removeItem("token");
             navigate("/login");
+            setIsOpen(false);
           }}
         >
-          Logout
+          <LogOut size={18} /> Logout
         </button>
       </aside>
     </>

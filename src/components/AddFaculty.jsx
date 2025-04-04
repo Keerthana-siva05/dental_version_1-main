@@ -87,7 +87,7 @@ const AddFaculty = () => {
   return (
     <div className="w-[90%] max-w-[1000px] mx-auto my-[150px] p-10 bg-gray-100 border-2 border-blue-900 shadow-lg rounded-xl text-center">
       <h1 className="text-2xl font-bold text-blue-900 uppercase tracking-wide border-b-4 border-blue-900 pb-2 inline-block shadow-sm">
-        Add / Edit Faculty Activities
+        Add Faculty Activities
       </h1>
 
       <div className="flex items-center justify-center gap-3 bg-blue-100 p-3 rounded-lg my-4">
@@ -122,18 +122,19 @@ const AddFaculty = () => {
             <li key={index} className="bg-white p-3 border border-blue-900 rounded-lg flex justify-between items-center my-2">
               <span>{activity}</span>
               <div className="flex gap-2">
-                <button
-                  onClick={() => handleEdit(index)}
-                  className="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600"
-                >
-                  Edit
-                </button>
-                <button
-                  onClick={() => handleDelete(index)}
-                  className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
-                >
-                  Delete
-                </button>
+              <button
+  onClick={() => handleEdit(index)}
+  className="bg-[#176B87] text-white px-4 py-2 rounded hover:bg-[#14536B]"
+>
+  Edit
+</button>
+
+<button
+  onClick={() => handleDelete(index)}
+  className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-900"
+>
+  Delete
+</button>
               </div>
             </li>
           ))}

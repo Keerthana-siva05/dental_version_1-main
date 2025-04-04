@@ -12,6 +12,7 @@ import Facultyactivity from "./components/Facultyactivity";
 import FacultyList from "./components/FacultyList";
 import AddFaculty from "./components/AddFaculty";
 import AttendanceForm from "./components/AttendanceForm";
+import ResourcesPage from "./components/ResourcesPage";
 import AttendanceAverage from "./components/AttendanceAverage";
 import InternalAssessment from "./components/internalAssessment";
 import About from "./components/About";
@@ -51,7 +52,7 @@ const App = () => {
   const handleLogin = () => setIsAuthenticated(true);
 
   const sidebarPages = ["/", "/facultyactivity", "/facultylist"];
-  const facultySidebarPages = ["/dashboard", "/profile", "/attendance", "/faculty","/internal"];
+  const facultySidebarPages = ["/dashboard", "/profile","/average","/resources", "/attendance", "/faculty","/internal"];
 
   return (
     <div className="relative min-h-screen bg-gray-100">
@@ -80,6 +81,7 @@ const App = () => {
           <Route path="/average" element={isAuthenticated ? <AttendanceAverage /> : <Navigate to="/login" />} />
           <Route path="/internal" element={isAuthenticated ? <InternalAssessment /> : <Navigate to="/login" />} />
           <Route path="/faculty" element={isAuthenticated ? <AddFaculty /> : <Navigate to="/login" />} />
+          <Route path="/resources" element={isAuthenticated ? <ResourcesPage /> : <Navigate to="/login" />} />
           <Route path="/facultyactivity" element={<Facultyactivity />} />
           <Route path="/facultylist" element={<FacultyList />} />
           <Route path="/about" element={<About />} />

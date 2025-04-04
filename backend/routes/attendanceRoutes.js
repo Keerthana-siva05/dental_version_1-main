@@ -1,5 +1,6 @@
 import express from "express";
 import Attendance from "../models/attendanceModel.js";
+import AverageAttendance from "../models/averageAttendanceModel.js"; // New model
 import Student from "../models/Student.js";
 
 const router = express.Router();
@@ -10,7 +11,7 @@ router.get("/students", async (req, res) => {
   try {
     const { course, batch } = req.query;  
     const students = await Student.find({ course, batch });
-    res.json(students);
+    res.json({ students }); // Wrap in an object
   } catch (err) {
     res.status(500).json({ message: "Error fetching students", error: err.message });
   }
@@ -120,31 +121,72 @@ router.post("/save", async (req, res) => {
 
 router.get("/average", async (req, res) => {
   try {
-    let { course, batch, startMonth, endMonth, year } = req.query;
+    const { course, batch, startMonth, endMonth, startYear, endYear } = req.query;
 
-    if (!course || !batch || !startMonth || !endMonth || !year) {
+    if (!course || !batch || !startMonth || !endMonth || !startYear) {
       return res.status(400).json({ message: "Missing required parameters" });
     }
 
-    // Convert months to numbers for MongoDB query
-    const start = parseInt(startMonth, 10);
-    const end = parseInt(endMonth, 10);
+    // Default endYear to startYear if not provided (for same-year ranges)
+    const endYearFinal = endYear || startYear;
 
-    if (isNaN(start) || isNaN(end)) {
-      return res.status(400).json({ message: "Invalid month values" });
+    // Convert to numbers
+    const startM = parseInt(startMonth, 10);
+    const endM = parseInt(endMonth, 10);
+    const startY = parseInt(startYear, 10);
+    const endY = parseInt(endYearFinal, 10);
+
+    // Find all relevant attendance records
+    let records = [];
+    
+    if (startY === endY) {
+      // Same year - simple range query
+      records = await Attendance.find({
+        course,
+        batch,
+        year: startY.toString(),
+        month: { $gte: startM, $lte: endM }
+      });
+    } else {
+      // Cross-year period - need multiple queries
+      // First part: startYear (startMonth to December)
+      const firstPart = await Attendance.find({
+        course,
+        batch,
+        year: startY.toString(),
+        month: { $gte: startM, $lte: 12 }
+      });
+      
+      // Middle years: full years if any
+      let middleParts = [];
+      if (endY - startY > 1) {
+        const middleYears = [];
+        for (let y = startY + 1; y < endY; y++) {
+          middleYears.push(y.toString());
+        }
+        middleParts = await Attendance.find({
+          course,
+          batch,
+          year: { $in: middleYears }
+        });
+      }
+      
+      // Last part: endYear (January to endMonth)
+      const lastPart = await Attendance.find({
+        course,
+        batch,
+        year: endY.toString(),
+        month: { $gte: 1, $lte: endM }
+      });
+      
+      records = [...firstPart, ...middleParts, ...lastPart];
     }
-
-    const records = await Attendance.find({
-      course,
-      batch,
-      year, // Ensure this is correctly formatted
-      month: { $gte: start, $lte: end },
-    });
 
     if (records.length === 0) {
       return res.status(404).json({ message: "No attendance records found for the selected range." });
     }
 
+    // Rest of your existing calculation logic...
     let studentAttendanceMap = {};
 
     records.forEach((record) => {
@@ -169,7 +211,7 @@ router.get("/average", async (req, res) => {
         studentAttendanceMap[student.regNumber].attendedPractical += student.practical.attended;
         studentAttendanceMap[student.regNumber].totalClinical += student.clinical.total;
         studentAttendanceMap[student.regNumber].attendedClinical += student.clinical.attended;
-        studentAttendanceMap[student.regNumber].monthsCount += 1; // Track the number of months
+        studentAttendanceMap[student.regNumber].monthsCount += 1;
       });
     });
 
@@ -184,7 +226,7 @@ router.get("/average", async (req, res) => {
         theoryPercentage: student.totalTheory ? ((student.attendedTheory / student.totalTheory) * 100).toFixed(2) : "0.00",
         practicalPercentage: student.totalPractical ? ((student.attendedPractical / student.totalPractical) * 100).toFixed(2) : "0.00",
         clinicalPercentage: student.totalClinical ? ((student.attendedClinical / student.totalClinical) * 100).toFixed(2) : "0.00",
-        averageAttendance: averageAttendance, // Overall average
+        averageAttendance: averageAttendance,
       };
     });
 
@@ -195,7 +237,67 @@ router.get("/average", async (req, res) => {
   }
 });
 
+router.post("/save-averages", async (req, res) => {
+  try {
+    const { 
+      course, 
+      batch, 
+      startMonth, 
+      endMonth, 
+      startYear, 
+      endYear,
+      averages 
+    } = req.body;
 
+    // Validate required fields
+    if (!course || !batch || !startMonth || !endMonth || !startYear || !endYear || !averages) {
+      return res.status(400).json({ message: "Missing required parameters" });
+    }
 
+    // Check if this average already exists
+    const existingAverage = await AverageAttendance.findOne({
+      course,
+      batch,
+      startMonth,
+      endMonth,
+      startYear,
+      endYear
+    });
 
+    if (existingAverage) {
+      // Update existing record
+      existingAverage.averages = averages;
+      existingAverage.calculatedAt = new Date();
+      await existingAverage.save();
+      return res.json({ 
+        message: "Average attendance updated successfully",
+        id: existingAverage._id
+      });
+    } else {
+      // Create new record
+      const newAverage = new AverageAttendance({
+        course,
+        batch,
+        startMonth,
+        endMonth,
+        startYear,
+        endYear,
+        averages,
+        calculatedAt: new Date()
+      });
+
+      await newAverage.save();
+      return res.json({ 
+        message: "Average attendance saved successfully",
+        id: newAverage._id
+      });
+    }
+  } catch (error) {
+    console.error("Error saving averages:", error);
+    res.status(500).json({ 
+      message: "Error saving average attendance", 
+      error: error.message 
+    });
+  }
+});
 export default router;
