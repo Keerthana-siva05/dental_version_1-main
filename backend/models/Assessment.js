@@ -4,6 +4,8 @@ const AssessmentSchema = new mongoose.Schema({
   regNumber: { type: String, required: true },
   name: { type: String, required: true },
   year: { type: String, required: true },
+  course: { type: String, required: true },  // Added course
+  batch: { type: String, required: true },   // Added batch
   assessmentType: { type: String, required: true },
   theory70: { type: Number, default: null },
   theory20: { type: Number, default: null },

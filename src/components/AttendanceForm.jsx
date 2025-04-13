@@ -156,9 +156,11 @@ const saveToDatabase = async () => {
           batch: selectedBatch,
           month,
           year,
+          currentYear: getCurrentYear(selectedBatch), // Add this line
           students: attendanceData.map((student) => ({
               regNumber: student.regNumber,
               name: student.name,
+              currentYear: getCurrentYear(selectedBatch), // Add to each student
               theoryTotal: Number(student.theoryTotal) || 0,
               theoryAttended: Number(student.theoryAttended) || 0,
               practicalTotal: Number(student.practicalTotal) || 0,

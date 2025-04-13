@@ -9,6 +9,7 @@ const categorySchema = new mongoose.Schema({
 const StudentAttendanceSchema = new mongoose.Schema({
   regNumber: { type: String, required: true },
   name: { type: String, required: true },
+  currentYear: { type: String, required: true }, // Add this line
   theory: categorySchema,
   practical: categorySchema,
   clinical: categorySchema
@@ -16,7 +17,8 @@ const StudentAttendanceSchema = new mongoose.Schema({
 
 const AttendanceSchema = new mongoose.Schema({
   course: { type: String, required: true },
-  year: { type: String, required: true },  // Added Year Field
+  year: { type: String, required: true },
+  currentYear: { type: String, required: true }, // Add this line for the overall record
   batch: { type: String, required: true },
   month: { type: String, required: true },
   students: [StudentAttendanceSchema],

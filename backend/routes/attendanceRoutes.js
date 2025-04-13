@@ -34,89 +34,146 @@ router.get("/", async (req, res) => {
 // Save attendance data
 router.post("/save", async (req, res) => {
   try {
-    const { course, year, batch, month, students } = req.body; // Added year
+    const { course, year, batch, month, currentYear, students } = req.body;
 
-    if (!students.every(s => s.regNumber)) {
-      return res.status(400).json({ message: "All students must have a registration number." });
+    // Validate required fields
+    if (!course || !year || !batch || !month || !currentYear || !students) {
+      return res.status(400).json({ message: "Missing required parameters" });
     }
 
-    console.log("Saving attendance for:", { course, year, batch, month, students });
+    if (!students.every(s => s.regNumber && s.name && s.currentYear)) {
+      return res.status(400).json({ 
+        message: "All students must have registration number, name, and current year." 
+      });
+    }
 
-    let existingRecord = await Attendance.findOne({ course, year, batch, month }); // Updated query
+    console.log("Saving attendance for:", { 
+      course, 
+      year, 
+      batch, 
+      month, 
+      currentYear,
+      studentCount: students.length 
+    });
+
+    // Check for existing record
+    let existingRecord = await Attendance.findOne({ course, year, batch, month });
 
     if (existingRecord) {
-      console.log(`Updating existing attendance record for ${course} - ${year} - ${batch} - ${month}`);
+      console.log(`Updating existing attendance record for ${course}-${batch}-${month}-${year}`);
 
+      // Update the record's currentYear
+      existingRecord.currentYear = currentYear;
+
+      // Process each student in the request
       students.forEach((newStudent) => {
-        const existingStudent = existingRecord.students.find((s) => s.regNumber === newStudent.regNumber);
+        const existingStudent = existingRecord.students.find(
+          s => s.regNumber === newStudent.regNumber
+        );
+
         if (existingStudent) {
+          // Update existing student
+          existingStudent.currentYear = newStudent.currentYear;
+          
+          // Update attendance categories if they exist
           ["theory", "clinical", "practical"].forEach((type) => {
-            if (newStudent[type]) {
-              existingStudent[type].total = newStudent[type].total;
-              existingStudent[type].attended = newStudent[type].attended;
-              existingStudent[type].percentage = (
-                (newStudent[type].attended / newStudent[type].total) * 100
-              ).toFixed(2);
+            if (newStudent[`${type}Total`] !== undefined) {
+              existingStudent[type] = {
+                total: Number(newStudent[`${type}Total`]) || 0,
+                attended: Number(newStudent[`${type}Attended`]) || 0,
+                percentage: newStudent[`${type}Total`] > 0 
+                  ? ((newStudent[`${type}Attended`] / newStudent[`${type}Total`]) * 100).toFixed(2)
+                  : "0.00"
+              };
             }
           });
         } else {
-          ["theory", "clinical", "practical"].forEach((type) => {
-            if (newStudent[type]) {
-              newStudent[type].percentage = (
-                (newStudent[type].attended / newStudent[type].total) * 100
-              ).toFixed(2);
+          // Add new student
+          const studentToAdd = {
+            regNumber: newStudent.regNumber,
+            name: newStudent.name,
+            currentYear: newStudent.currentYear,
+            theory: {
+              total: Number(newStudent.theoryTotal) || 0,
+              attended: Number(newStudent.theoryAttended) || 0,
+              percentage: newStudent.theoryTotal > 0
+                ? ((newStudent.theoryAttended / newStudent.theoryTotal) * 100).toFixed(2)
+                : "0.00"
+            },
+            clinical: {
+              total: Number(newStudent.clinicalTotal) || 0,
+              attended: Number(newStudent.clinicalAttended) || 0,
+              percentage: newStudent.clinicalTotal > 0
+                ? ((newStudent.clinicalAttended / newStudent.clinicalTotal) * 100).toFixed(2)
+                : "0.00"
+            },
+            practical: {
+              total: Number(newStudent.practicalTotal) || 0,
+              attended: Number(newStudent.practicalAttended) || 0,
+              percentage: newStudent.practicalTotal > 0
+                ? ((newStudent.practicalAttended / newStudent.practicalTotal) * 100).toFixed(2)
+                : "0.00"
             }
-          });
-          existingRecord.students.push(newStudent);
+          };
+          existingRecord.students.push(studentToAdd);
         }
       });
 
       await existingRecord.save();
-      return res.json({ message: "Attendance updated successfully" });
-    } else {
-      console.log("Creating new attendance record");
-
-      students.forEach((student) => {
-        student.theory = {
-          total: student.theoryTotal || 0,
-          attended: student.theoryAttended || 0,
-          percentage: student.theoryTotal > 0
-            ? ((student.theoryAttended / student.theoryTotal) * 100).toFixed(2)
-            : "0.00",
-        };
-        student.clinical = {
-          total: student.clinicalTotal || 0,
-          attended: student.clinicalAttended || 0,
-          percentage: student.clinicalTotal > 0
-            ? ((student.clinicalAttended / student.clinicalTotal) * 100).toFixed(2)
-            : "0.00",
-        };
-        student.practical = {
-          total: student.practicalTotal || 0,
-          attended: student.practicalAttended || 0,
-          percentage: student.practicalTotal > 0
-            ? ((student.practicalAttended / student.practicalTotal) * 100).toFixed(2)
-            : "0.00",
-        };
+      return res.json({ 
+        message: "Attendance updated successfully",
+        recordId: existingRecord._id
       });
-
+    } else {
+      // Create new attendance record
       const newAttendance = new Attendance({
         course,
-        year,  // Included year
-        batch,  
+        year,
+        batch,
         month,
-        students,
+        currentYear,
+        students: students.map(student => ({
+          regNumber: student.regNumber,
+          name: student.name,
+          currentYear: student.currentYear,
+          theory: {
+            total: Number(student.theoryTotal) || 0,
+            attended: Number(student.theoryAttended) || 0,
+            percentage: student.theoryTotal > 0
+              ? ((student.theoryAttended / student.theoryTotal) * 100).toFixed(2)
+              : "0.00"
+          },
+          clinical: {
+            total: Number(student.clinicalTotal) || 0,
+            attended: Number(student.clinicalAttended) || 0,
+            percentage: student.clinicalTotal > 0
+              ? ((student.clinicalAttended / student.clinicalTotal) * 100).toFixed(2)
+              : "0.00"
+          },
+          practical: {
+            total: Number(student.practicalTotal) || 0,
+            attended: Number(student.practicalAttended) || 0,
+            percentage: student.practicalTotal > 0
+              ? ((student.practicalAttended / student.practicalTotal) * 100).toFixed(2)
+              : "0.00"
+          }
+        }))
       });
 
       await newAttendance.save();
-      return res.json({ message: "Attendance saved successfully" });
+      return res.json({ 
+        message: "Attendance saved successfully",
+        recordId: newAttendance._id
+      });
     }
   } catch (error) {
     console.error("Error saving attendance:", error);
-    res.status(500).json({ message: "Error saving attendance", error: error.message });
+    res.status(500).json({ 
+      message: "Error saving attendance", 
+      error: error.message 
+    });
   }
 });
-
 
 
 router.get("/average", async (req, res) => {

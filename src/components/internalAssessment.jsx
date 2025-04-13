@@ -91,8 +91,10 @@ const InternalAssessment = () => {
 
     const downloadCSV = () => {
         const csvContent = [
-            ["Reg. No", "Name", "Year", "Assessment Type", "Theory (70)", "Theory (20)", "Theory (10)", "Total Theory", "Practical (90)", "Practical (10)", "Total Practical"],
+            ["Course", "Batch", "Reg. No", "Name", "Year", "Assessment Type", "Theory (70)", "Theory (20)", "Theory (10)", "Total Theory", "Practical (90)", "Practical (10)", "Total Practical"],
             ...students.map(student => [
+                selectedCourse,
+                selectedBatch,
                 student.regNumber,
                 student.name,
                 getCurrentYear(selectedBatch),
@@ -111,7 +113,7 @@ const InternalAssessment = () => {
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement("a");
         a.href = url;
-        a.download = `assessment_${selectedBatch}_${assessmentType}.csv`;
+        a.download = `assessment_${selectedCourse}_${selectedBatch}_${assessmentType}.csv`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);

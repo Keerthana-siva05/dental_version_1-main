@@ -66,6 +66,7 @@ router.get("/", async (req, res) => {
 });
 
 // Save assessment data
+// Save assessment data
 router.post("/save", async (req, res) => {
     try {
         const { regNumber, assessmentType, theory70, theory20, theory10, practical90, practical10 } = req.body;
@@ -83,7 +84,9 @@ router.post("/save", async (req, res) => {
             { regNumber, assessmentType },
             { 
                 name: student.name, 
-                year, 
+                year,
+                course: student.course,  // Added course
+                batch: student.batch,    // Added batch
                 theory70, 
                 theory20, 
                 theory10, 
@@ -100,5 +103,4 @@ router.post("/save", async (req, res) => {
         res.status(500).json({ message: "Error saving assessment" });
     }
 });
-
 export default router;
