@@ -12,14 +12,33 @@ const AttendanceForm = () => {
   const [selectedBatch, setSelectedBatch] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  
+  const isSelectionComplete = course && selectedBatch && month;
+
 
   const getCurrentYear = (batch) => {
-    const currentYear = new Date().getFullYear();
+    if (!batch) return "";
+    
+    const currentDate = new Date();
+    const currentYear = currentDate.getFullYear();
+    const currentMonth = currentDate.getMonth() + 1; // January is 0
+    
     const batchStartYear = parseInt(batch.split("-")[0]);
-    const year = currentYear - batchStartYear + 1;
-    return year > 5 ? "Graduated" : `${year}`;
-};
+    
+    // Academic year starts in July (month 7)
+    // If current month is before July, we're still in the previous academic year
+    const academicYear = currentMonth < 7 ? currentYear - 1 : currentYear;
+    
+    const year = academicYear - batchStartYear + 1;
+    
+    if (year < 1) return "Not Started";
+    if (year > 5) return "Graduated";
+    
+    // Add ordinal suffix (1st, 2nd, 3rd, etc.)
+    const suffixes = ["th", "st", "nd", "rd"];
+    const suffix = year % 100 > 10 && year % 100 < 14 ? "th" : suffixes[year % 10] || "th";
+    
+    return `${year}${suffix}`;
+  };
 
 useEffect(() => {
   if (!course || !selectedBatch || !month || !year) return;
@@ -196,11 +215,18 @@ const saveToDatabase = async () => {
         </div>
         <div className="flex-1">
         <label className="block font-semibold mb-1">Batch:</label>
-        <select value={selectedBatch} onChange={(e) => setSelectedBatch(e.target.value)} className="w-full p-2 border rounded">
-                    <option value="">Select Batch</option>
-                    <option value="2022-2026">2022-2026</option>
-                    <option value="2021-2025">2021-2025</option>
-                </select>
+        <input
+        list="batch-options"
+        value={selectedBatch}
+        onChange={(e) => setSelectedBatch(e.target.value)}
+        className="p-2 border rounded"
+        placeholder="Enter or select batch"
+        />
+        <datalist id="batch-options">
+        <option value="2022-2026" />
+        <option value="2021-2025" />
+        <option value="2020-2024" />
+        </datalist>
         </div>
         <div className="flex-1">
           <label className="block font-semibold mb-1">Month:</label>
@@ -214,7 +240,8 @@ const saveToDatabase = async () => {
         </div>
       </div>
 
-
+      {isSelectionComplete && (
+  <>
       <div className="overflow-x-auto">
         <table className="w-full border-collapse shadow-lg rounded-lg text-sm">
           <thead>
@@ -308,14 +335,14 @@ const saveToDatabase = async () => {
         onClick={saveToDatabase} 
         className="bg-[#1E3A8A] text-white px-6 py-2 rounded hover:bg-[#360061]"
     >
-        Save Attendance
+        Save
     </button>
     
     <button 
         onClick={downloadExcel} 
         className="bg-[#145A32] text-white px-4 py-2 rounded hover:bg-[#1C6E1C]"
     >
-        Download Excel
+        Download
     </button>
     
     <Link 
@@ -325,8 +352,10 @@ const saveToDatabase = async () => {
         Calculate Average
     </Link>
 </div>
-
+</>
+)}
       </div>
+    
   );
 };
 

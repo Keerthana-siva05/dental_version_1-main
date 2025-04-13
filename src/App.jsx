@@ -15,6 +15,7 @@ import AttendanceForm from "./components/AttendanceForm";
 import ResourcesPage from "./components/ResourcesPage";
 import AttendanceAverage from "./components/AttendanceAverage";
 import InternalAssessment from "./components/internalAssessment";
+import PatientCase from "./components/PatientCase";
 import About from "./components/About";
 import Services from "./components/Services";
 import Contact from "./components/Contact";
@@ -80,6 +81,7 @@ const App = () => {
           <Route path="/attendance" element={isAuthenticated ? <AttendanceForm /> : <Navigate to="/login" />} />
           <Route path="/average" element={isAuthenticated ? <AttendanceAverage /> : <Navigate to="/login" />} />
           <Route path="/internal" element={isAuthenticated ? <InternalAssessment /> : <Navigate to="/login" />} />
+          <Route path="/patient-cases" element={isAuthenticated? <PatientCase /> :<Navigate to="/login"/> }/>
           <Route path="/faculty" element={isAuthenticated ? <AddFaculty /> : <Navigate to="/login" />} />
           <Route path="/resources" element={isAuthenticated ? <ResourcesPage /> : <Navigate to="/login" />} />
           <Route path="/facultyactivity" element={<Facultyactivity />} />

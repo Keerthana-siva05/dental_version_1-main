@@ -8,7 +8,8 @@ const ResourcesPage = () => {
   const [description, setDescription] = useState('');
   const [file, setFile] = useState(null);
   const [fileType, setFileType] = useState('pdf');
-  const [courseType, setCourseType] = useState('BDS');
+  const [courseType, setCourseType] = useState('');
+  const [academicYear, setAcademicYear] = useState(''); // New state for academic year
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -33,7 +34,6 @@ const ResourcesPage = () => {
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
     if (selectedFile) {
-      // Check file type
       const type = selectedFile.type.includes('video') ? 'video' : 'pdf';
       setFileType(type);
       setFile(selectedFile);
@@ -54,6 +54,7 @@ const ResourcesPage = () => {
     formData.append('file', file);
     formData.append('fileType', fileType);
     formData.append('courseType', courseType);
+    formData.append('academicYear', academicYear); // Add academic year to form data
 
     try {
       setLoading(true);
@@ -71,6 +72,7 @@ const ResourcesPage = () => {
       setTitle('');
       setDescription('');
       setFile(null);
+      setAcademicYear('1'); // Reset to default after upload
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to upload resource');
     } finally {
@@ -93,17 +95,25 @@ const ResourcesPage = () => {
     }
   };
 
+  // Function to format year as 1st, 2nd, etc.
+  const formatYear = (year) => {
+    if (!year) return '';
+    const suffixes = ['th', 'st', 'nd', 'rd'];
+    const suffix = year % 100 > 10 && year % 100 < 14 ? 'th' : suffixes[year % 10] || 'th';
+    return `${year}${suffix} Year`;
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8 mt-14">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
-        <div className="text-center mb-12">
+        <div className="text-center mb-6">
           <h1 className="text-4xl font-extrabold text-gray-900 mb-2">Upload Resources</h1>
           <p className="text-lg text-gray-600">Share study materials for BDS and MDS courses</p>
         </div>
         
         {/* Upload Form */}
-        <div className="bg-white rounded-xl shadow-lg  overflow-hidden mb-12">
+        <div className="bg-white rounded-xl shadow-lg overflow-hidden mb-12">
           <div className="bg-gradient-to-r from-blue-900 to-indigo-700 px-6 py-4">
             <h2 className="text-xl font-semibold text-white">Upload New Resource</h2>
           </div>
@@ -136,8 +146,46 @@ const ResourcesPage = () => {
                     onChange={(e) => setCourseType(e.target.value)}
                     required
                   >
+                    <option value="">Select Course</option>
                     <option value="BDS">BDS</option>
                     <option value="MDS">MDS</option>
+                  </select>
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                <div>
+                  <label htmlFor="academicYear" className="block text-sm font-medium text-gray-700 mb-1">
+                    Academic Year <span className="text-red-500">*</span>
+                  </label>
+                  <select
+                    id="academicYear"
+                    className="block w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+                    value={academicYear}
+                    onChange={(e) => setAcademicYear(e.target.value)}
+                    required
+                  >
+                    <option value="">Select Year</option>
+                    <option value="1">1st Year</option>
+                    <option value="2">2nd Year</option>
+                    <option value="3">3rd Year</option>
+                    <option value="4">4th Year</option>
+                  </select>
+                </div>
+                
+                <div>
+                  <label htmlFor="fileType" className="block text-sm font-medium text-gray-700 mb-1">
+                    Resource Type <span className="text-red-500">*</span>
+                  </label>
+                  <select
+                    id="fileType"
+                    className="block w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+                    value={fileType}
+                    onChange={(e) => setFileType(e.target.value)}
+                    required
+                  >
+                    <option value="pdf">PDF/Document</option>
+                    <option value="video">Video</option>
                   </select>
                 </div>
               </div>
@@ -155,37 +203,19 @@ const ResourcesPage = () => {
                 />
               </div>
               
-              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-                <div>
-                  <label htmlFor="fileType" className="block text-sm font-medium text-gray-700 mb-1">
-                    Resource Type <span className="text-red-500">*</span>
-                  </label>
-                  <select
-                    id="fileType"
-                    className="block w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
-                    value={fileType}
-                    onChange={(e) => setFileType(e.target.value)}
+              <div>
+                <label htmlFor="file" className="block text-sm font-medium text-gray-700 mb-1">
+                  File <span className="text-red-500">*</span>
+                </label>
+                <div className="flex items-center">
+                  <input
+                    id="file"
+                    type="file"
+                    className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 transition"
+                    onChange={handleFileChange}
+                    accept={fileType === 'pdf' ? '.pdf,.doc,.docx,.ppt,.pptx' : 'video/*'}
                     required
-                  >
-                    <option value="pdf">PDF/Document</option>
-                    <option value="video">Video</option>
-                  </select>
-                </div>
-                
-                <div>
-                  <label htmlFor="file" className="block text-sm font-medium text-gray-700 mb-1">
-                    File <span className="text-red-500">*</span>
-                  </label>
-                  <div className="flex items-center">
-                    <input
-                      id="file"
-                      type="file"
-                      className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 transition"
-                      onChange={handleFileChange}
-                      accept={fileType === 'pdf' ? '.pdf,.doc,.docx,.ppt,.pptx' : 'video/*'}
-                      required
-                    />
-                  </div>
+                  />
                 </div>
               </div>
               
@@ -273,6 +303,9 @@ const ResourcesPage = () => {
                             resource.courseType === 'BDS' ? 'bg-purple-100 text-purple-800' : 'bg-pink-100 text-pink-800'
                           }`}>
                             {resource.courseType}
+                          </span>
+                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                            {formatYear(resource.academicYear)}
                           </span>
                         </div>
                         <p className="mt-1 text-gray-600">{resource.description}</p>

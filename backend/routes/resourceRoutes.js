@@ -53,7 +53,7 @@ const upload = multer({
 // Upload a new resource
 router.post('/', upload.single('file'), async (req, res) => {
   try {
-    const { title, description, fileType, courseType } = req.body;
+    const { title, description, fileType, courseType, academicYear } = req.body;
     
     if (!req.file) {
       return res.status(400).json({ message: 'No file uploaded' });
@@ -64,6 +64,7 @@ router.post('/', upload.single('file'), async (req, res) => {
       description,
       fileType,
       courseType,
+      academicYear: parseInt(academicYear),
       filePath: req.file.path,
       originalFileName: req.file.originalname
     });
@@ -79,11 +80,15 @@ router.post('/', upload.single('file'), async (req, res) => {
 // Get all resources with optional course type filtering
 router.get('/', async (req, res) => {
   try {
-    const { courseType } = req.query;
+    const { courseType, academicYear } = req.query;
     let query = {};
     
     if (courseType) {
       query.courseType = courseType;
+    }
+    
+    if (academicYear) {
+      query.academicYear = academicYear;
     }
 
     const resources = await Resource.find(query).sort({ createdAt: -1 });

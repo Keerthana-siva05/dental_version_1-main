@@ -4,12 +4,30 @@ import Assessment from "../models/Assessment.js";
 
 const router = express.Router();
 
-// Function to calculate the student's current year from the batch
+// Improved function to calculate the student's current year from the batch
 const getCurrentYear = (batch) => {
-    const currentYear = new Date().getFullYear();
-    const batchStartYear = parseInt(batch.split("-")[0]); // Extracts starting year
-    const year = currentYear - batchStartYear + 1;
-    return year > 5 ? "Graduated" : `${year} Year`;
+    if (!batch) return "";
+    
+    const currentDate = new Date();
+    const currentYear = currentDate.getFullYear();
+    const currentMonth = currentDate.getMonth() + 1; // January is 0
+    
+    const batchStartYear = parseInt(batch.split("-")[0]);
+    
+    // Academic year starts in July (month 7)
+    // If current month is before July, we're still in the previous academic year
+    const academicYear = currentMonth < 7 ? currentYear - 1 : currentYear;
+    
+    const year = academicYear - batchStartYear + 1;
+    
+    if (year < 1) return "Not Started";
+    if (year > 5) return "Graduated";
+    
+    // Add ordinal suffix (1st, 2nd, 3rd, etc.)
+    const suffixes = ["th", "st", "nd", "rd"];
+    const suffix = year % 100 > 10 && year % 100 < 14 ? "th" : suffixes[year % 10] || "th";
+    
+    return `${year}${suffix} Year`;
 };
 
 // Fetch students along with their assessments
@@ -20,17 +38,6 @@ router.get("/", async (req, res) => {
 
         const studentData = await Promise.all(students.map(async (student) => {
             const assessment = await Assessment.findOne({ regNumber: student.regNumber, assessmentType });
-
-            // If assessment type is changed, reset marks fields
-            const resetMarks = {
-                theory70: "",
-                theory20: "",
-                theory10: "",
-                totalTheory: "",
-                practical90: "",
-                practical10: "",
-                totalPractical: "",
-            };
 
             return {
                 regNumber: student.regNumber,
@@ -43,15 +50,13 @@ router.get("/", async (req, res) => {
                 totalTheory: 
                     (assessment?.theory70 || 0) + 
                     (assessment?.theory20 || 0) + 
-                    (assessment?.theory10 || 0),  // Ensure this is computed
+                    (assessment?.theory10 || 0),
                 practical90: assessment?.practical90 || 0,
                 practical10: assessment?.practical10 || 0,
                 totalPractical: 
                     (assessment?.practical90 || 0) + 
-                    (assessment?.practical10 || 0)  // Ensure this is computed
+                    (assessment?.practical10 || 0)
             };
-            
-            
         }));
 
         res.json(studentData);
@@ -59,7 +64,6 @@ router.get("/", async (req, res) => {
         res.status(500).json({ message: "Error fetching students" });
     }
 });
-
 
 // Save assessment data
 router.post("/save", async (req, res) => {
@@ -70,14 +74,24 @@ router.post("/save", async (req, res) => {
         const student = await Student.findOne({ regNumber });
         if (!student) return res.status(404).json({ message: "Student not found" });
 
-        const year = getCurrentYear(student.batch); // Calculate student's year
+        const year = getCurrentYear(student.batch);
         const totalTheory = (theory70 || 0) + (theory20 || 0) + (theory10 || 0);
         const totalPractical = (practical90 || 0) + (practical10 || 0);
 
         // Update or insert assessment record
         const assessment = await Assessment.findOneAndUpdate(
             { regNumber, assessmentType },
-            { name: student.name, year, theory70, theory20, theory10, totalTheory, practical90, practical10, totalPractical },
+            { 
+                name: student.name, 
+                year, 
+                theory70, 
+                theory20, 
+                theory10, 
+                totalTheory, 
+                practical90, 
+                practical10, 
+                totalPractical 
+            },
             { new: true, upsert: true }
         );
 

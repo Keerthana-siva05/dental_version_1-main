@@ -9,11 +9,29 @@ const InternalAssessment = () => {
 
     // Function to determine student's current year
     const getCurrentYear = (batch) => {
-        const currentYear = new Date().getFullYear();
+        if (!batch) return "";
+        
+        const currentDate = new Date();
+        const currentYear = currentDate.getFullYear();
+        const currentMonth = currentDate.getMonth() + 1; // January is 0
+        
         const batchStartYear = parseInt(batch.split("-")[0]);
-        const year = currentYear - batchStartYear + 1;
-        return year > 5 ? "Graduated" : `${year}`;
-    };
+        
+        // Academic year starts in July (month 7)
+        // If current month is before July, we're still in the previous academic year
+        const academicYear = currentMonth < 7 ? currentYear - 1 : currentYear;
+        
+        const year = academicYear - batchStartYear + 1;
+        
+        if (year < 1) return "Not Started";
+        if (year > 5) return "Graduated";
+        
+        // Add ordinal suffix (1st, 2nd, 3rd, etc.)
+        const suffixes = ["th", "st", "nd", "rd"];
+        const suffix = year % 100 > 10 && year % 100 < 14 ? "th" : suffixes[year % 10] || "th";
+        
+        return `${year}${suffix}`;
+      };
 
     useEffect(() => {
         if (selectedCourse && selectedBatch && assessmentType) {
@@ -117,9 +135,9 @@ const InternalAssessment = () => {
     };
 
     return (
-        <div className="p-8 bg-gray-100 min-h-screen mt-16">
+        <div className="max-w-6xl mx-auto mt-10 p-8 bg-white shadow-lg rounded-lg mt-16">
             <h1 className="text-3xl font-bold text-center mb-6 mt-5">
-                Internal Assessment
+                Internal Marks
             </h1>
 
             {/* Dropdowns for Course, Batch, and Assessment Type */}
@@ -130,11 +148,18 @@ const InternalAssessment = () => {
                     <option value="MDS">MDS</option>
                 </select>
 
-                <select value={selectedBatch} onChange={(e) => setSelectedBatch(e.target.value)} className="p-2 border rounded">
-                    <option value="">Select Batch</option>
-                    <option value="2022-2026">2022-2026</option>
-                    <option value="2021-2025">2021-2025</option>
-                </select>
+                <input
+                list="batch-options"
+                value={selectedBatch}
+                onChange={(e) => setSelectedBatch(e.target.value)}
+                className="p-2 border rounded"
+                placeholder="Enter or select batch"
+                />
+                <datalist id="batch-options">
+                <option value="2022-2026" />
+                <option value="2021-2025" />
+                <option value="2020-2022" />
+                </datalist>
 
                 <select value={assessmentType} onChange={handleAssessmentChange}>
                 <option value="">Select Assessment</option>
@@ -144,6 +169,7 @@ const InternalAssessment = () => {
             </div>
 
             {students.length > 0 && (
+                <>
                 <table className="w-full border-collapse border border-gray-300 text-center">
                 <thead>
                     <tr className="bg-blue-900 text-white border border-gray-300">
@@ -196,17 +222,16 @@ const InternalAssessment = () => {
                         ))}
                     </tbody>
                 </table>
-            )}
+           
 
-<div className="flex justify-center space-x-4 mt-4">
-    <button onClick={saveAssessment} className="bg-blue-500 text-white px-4 py-2 rounded">
-        Save Assessment
-    </button>
-    <button onClick={downloadCSV} className="bg-green-500 text-white px-4 py-2 rounded">
-        Download CSV
-    </button>
-</div>
+            <div className="flex justify-center space-x-4 mt-4">
+            <button onClick={saveAssessment} className="bg-blue-500 text-white px-4 py-2 rounded"> Save</button>
+            <button onClick={downloadCSV} className="bg-green-500 text-white px-4 py-2 rounded">  Download</button>
+            </div>
+            </>
+          )}
         </div>
+    
     );
 };
 
